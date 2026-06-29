@@ -22,6 +22,9 @@ public class PlayerCam : MonoBehaviour
 
     private void Update()
     {
+        if (GameManagerScript.isDead)
+            return; 
+
         // get mouse input
         float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
         float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;

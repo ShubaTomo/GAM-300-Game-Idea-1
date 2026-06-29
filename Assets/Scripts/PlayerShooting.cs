@@ -41,6 +41,9 @@ public class PlayerShooting : MonoBehaviour
 
     private void Update()
     {
+        if (GameManagerScript.isDead)
+            return; 
+
         if (isReloading)
             return;
 
