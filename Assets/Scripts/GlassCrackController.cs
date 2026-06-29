@@ -15,6 +15,8 @@ public class GlassCrackController : MonoBehaviour
 
     public Image[] glassCracks;
 
+    private Coroutine fadeOutCoroutine;
+
     public void Start()
     {
         if (playerHealth == null)
@@ -42,7 +44,7 @@ public class GlassCrackController : MonoBehaviour
             timer -= Time.deltaTime;
             if (timer <= 0)
             {
-                opacityValue = 0f;
+                StartFadeOutCracks();
             }
         }
 
@@ -56,27 +58,59 @@ public class GlassCrackController : MonoBehaviour
     public float onTakeDamage(float damage)
     {
         float percentage = 1 - (currentHP / maxHP);
-        opacityValue = 250 * percentage;
+        opacityValue = percentage;
         Debug.Log("Opacity Value: " + opacityValue);
         damageTimer = true;
+
+        // If a fade-out is in progress, stop it so the cracks appear instantly on new damage
+        if (fadeOutCoroutine != null)
+        {
+            StopCoroutine(fadeOutCoroutine);
+            fadeOutCoroutine = null;
+        }
+
+        foreach (Image glassCrack in glassCracks)
+        {
+            glassCrack.color = new Color(glassCrack.color.r, glassCrack.color.g, glassCrack.color.b, opacityValue);
+        }
+
         return 0;
     }
 
-    //IEnumerator IFadeOutCracks()
-    //{
-    //    while (opacityValue > 0)
-    //    {
-    //        opacityValue -= Time.deltaTime * 10f;
+    private void StartFadeOutCracks()
+    {
+        if (fadeOutCoroutine != null)
+        {
+            StopCoroutine(fadeOutCoroutine);
+        }
+        fadeOutCoroutine = StartCoroutine(FadeOutCracks());
+    }
 
-    //        Debug.Log("Opacity Value: " + opacityValue);
+    private IEnumerator FadeOutCracks()
+    {
+        float startOpacity = opacityValue;
+        float duration = 3f;
+        float elapsed = 0f;
 
-    //        foreach (Image glassCrack in glassCracks)
-    //        {
-    //            glassCrack.color = new Color(glassCrack.color.r, glassCrack.color.g, glassCrack.color.b, opacityValue);
-    //        }
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            opacityValue = Mathf.Lerp(startOpacity, 0f, elapsed / duration);
 
-    //        yield return null;
-    //    }
-    //    opacityValue = 0f;
-    //}
+            foreach (Image glassCrack in glassCracks)
+            {
+                glassCrack.color = new Color(glassCrack.color.r, glassCrack.color.g, glassCrack.color.b, opacityValue);
+            }
+
+            yield return null;
+        }
+
+        opacityValue = 0f;
+        foreach (Image glassCrack in glassCracks)
+        {
+            glassCrack.color = new Color(glassCrack.color.r, glassCrack.color.g, glassCrack.color.b, opacityValue);
+        }
+
+        fadeOutCoroutine = null;
+    }
 }
