@@ -15,9 +15,21 @@ public class ObjectiveCompass : MonoBehaviour
     [Header("Compass")]
     public float compassWidth = 500f;
 
-    [Header("Glitch")]
+    [Header("Glitch Settings")]
+    public float glitchInterval = 1f;
+    public float glitchDuration = 0.35f;
+
     public float maxMarkerJitter = 40f;
-    public float signalLossChance = 0.02f;
+
+    private float glitchTimer;
+    private float glitchDurationTimer;
+    private bool isGlitching;
+
+    private void Start()
+    {
+        glitchTimer =
+            glitchInterval;
+    }
 
     private void Update()
     {
@@ -57,19 +69,82 @@ public class ObjectiveCompass : MonoBehaviour
             compassWidth / 2f);
 
         //--------------------------------------------------
+        // Glitch timer
+        //--------------------------------------------------
+
+        if (hpPercent > 0.5f)
+        {
+            isGlitching = false;
+
+            marker.gameObject.SetActive(true);
+
+            marker.anchoredPosition =
+                new Vector2(
+                    xPos,
+                    marker.anchoredPosition.y);
+
+            UpdateDistanceText(
+                hpPercent,
+                false);
+
+            return;
+        }
+
+        float damageLevel =
+            Mathf.InverseLerp(
+                0.5f,
+                0f,
+                hpPercent);
+
+        float currentInterval =
+            Mathf.Lerp(
+                glitchInterval,
+                0.15f,
+                damageLevel);
+
+        float currentDuration =
+            Mathf.Lerp(
+                glitchDuration,
+                1f,
+                damageLevel);
+
+        if (isGlitching)
+        {
+            glitchDurationTimer -=
+                Time.deltaTime;
+
+            if (glitchDurationTimer <= 0f)
+            {
+                isGlitching =
+                    false;
+            }
+        }
+        else
+        {
+            glitchTimer -=
+                Time.deltaTime;
+
+            if (glitchTimer <= 0f)
+            {
+                isGlitching =
+                    true;
+
+                glitchDurationTimer =
+                    currentDuration;
+
+                glitchTimer =
+                    currentInterval;
+            }
+        }
+
+        //--------------------------------------------------
         // Marker jitter
         //--------------------------------------------------
 
         float jitter = 0f;
 
-        if (hpPercent <= 0.5f)
+        if (isGlitching)
         {
-            float damageLevel =
-                Mathf.InverseLerp(
-                    0.5f,
-                    0.1f,
-                    hpPercent);
-
             jitter =
                 Random.Range(
                     -maxMarkerJitter,
@@ -87,9 +162,10 @@ public class ObjectiveCompass : MonoBehaviour
         //--------------------------------------------------
 
         if (hpPercent <= 0.1f &&
-            Random.value < signalLossChance)
+            isGlitching)
         {
-            marker.gameObject.SetActive(false);
+            marker.gameObject.SetActive(
+                false);
 
             if (distanceText != null)
             {
@@ -101,66 +177,74 @@ public class ObjectiveCompass : MonoBehaviour
         }
         else
         {
-            marker.gameObject.SetActive(true);
+            marker.gameObject.SetActive(
+                true);
         }
 
         //--------------------------------------------------
         // Distance text
         //--------------------------------------------------
 
-        if (distanceText != null)
+        UpdateDistanceText(
+            hpPercent,
+            isGlitching);
+    }
+
+    private void UpdateDistanceText(
+        float hpPercent,
+        bool glitched)
+    {
+        if (distanceText == null)
+            return;
+
+        float distance =
+            Vector3.Distance(
+                player.position,
+                objective.position);
+
+        string text =
+            Mathf.RoundToInt(
+                distance)
+            + "m";
+
+        if (glitched)
         {
-            float distance =
-                Vector3.Distance(
-                    player.position,
-                    objective.position);
+            float damageLevel =
+                Mathf.InverseLerp(
+                    0.5f,
+                    0f,
+                    hpPercent);
 
-            string text =
-                Mathf.RoundToInt(distance)
-                + "m";
+            float currentCorruption =
+                Mathf.Lerp(
+                    0.1f,
+                    0.5f,
+                    damageLevel);
 
-            //--------------------------------------------------
-            // Corrupt distance text
-            //--------------------------------------------------
+            char[] chars =
+                text.ToCharArray();
 
-            if (hpPercent <= 0.5f)
+            for (int i = 0;
+                 i < chars.Length;
+                 i++)
             {
-                float damageLevel =
-                    Mathf.InverseLerp(
-                        0.5f,
-                        0.1f,
-                        hpPercent);
+                if (chars[i] == 'm')
+                    continue;
 
-                float corruptionChance =
-                    Mathf.Lerp(
-                        0.1f,
-                        0.8f,
-                        damageLevel);
-
-                char[] chars =
-                    text.ToCharArray();
-
-                for (int i = 0;
-                    i < chars.Length;
-                    i++)
+                if (Random.value <
+                    currentCorruption)
                 {
-                    if (chars[i] == 'm')
-                        continue;
-
-                    if (Random.value <
-                        corruptionChance)
-                    {
-                        chars[i] =
-                            GetRandomCharacter();
-                    }
+                    chars[i] =
+                        GetRandomCharacter();
                 }
-
-                text =
-                    new string(chars);
             }
 
-            distanceText.text = text;
+            text =
+                new string(chars);
         }
+
+        distanceText.text =
+            text;
     }
 
     private char GetRandomCharacter()

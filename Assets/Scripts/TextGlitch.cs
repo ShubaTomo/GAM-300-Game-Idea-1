@@ -10,20 +10,31 @@ public class TextGlitch : MonoBehaviour
     public float glitchInterval = 3f;
     public float glitchDuration = 0.2f;
 
+    [Header("Critical Failure")]
+    public float errorMessageInterval = 2f;
+
     private TMP_Text objectiveText;
     private string originalText;
 
     private float glitchTimer;
     private float glitchDurationTimer;
+    private float errorTimer;
 
     private bool isGlitching;
 
     private void Start()
     {
-        objectiveText = GetComponent<TMP_Text>();
-        originalText = objectiveText.text;
+        objectiveText =
+            GetComponent<TMP_Text>();
 
-        glitchTimer = glitchInterval;
+        originalText =
+            objectiveText.text;
+
+        glitchTimer =
+            glitchInterval;
+
+        errorTimer =
+            errorMessageInterval;
     }
 
     private void Update()
@@ -42,37 +53,52 @@ public class TextGlitch : MonoBehaviour
         // Healthy
         if (hpPercent > 0.5f)
         {
-            objectiveText.text = originalText;
-            isGlitching = false;
+            objectiveText.text =
+                originalText;
+
+            isGlitching =
+                false;
+
             return;
         }
 
-        // Damage level (0 = just started glitching, 1 = almost dead)
         float damageLevel =
-            Mathf.InverseLerp(0.5f, 0.1f, hpPercent);
+            Mathf.InverseLerp(
+                0.5f,
+                0.1f,
+                hpPercent);
 
-        // More damage = faster glitches
         float currentInterval =
-            Mathf.Lerp(glitchInterval, 0.5f, damageLevel);
+            Mathf.Lerp(
+                glitchInterval,
+                0.5f,
+                damageLevel);
 
-        // More damage = longer glitches
         float currentDuration =
-            Mathf.Lerp(glitchDuration, 0.6f, damageLevel);
+            Mathf.Lerp(
+                glitchDuration,
+                0.6f,
+                damageLevel);
 
         if (isGlitching)
         {
-            glitchDurationTimer -= Time.deltaTime;
+            glitchDurationTimer -=
+                Time.deltaTime;
 
             if (glitchDurationTimer <= 0)
             {
-                isGlitching = false;
-                objectiveText.text = originalText;
+                isGlitching =
+                    false;
+
+                objectiveText.text =
+                    originalText;
             }
 
             return;
         }
 
-        glitchTimer -= Time.deltaTime;
+        glitchTimer -=
+            Time.deltaTime;
 
         if (glitchTimer <= 0)
         {
@@ -81,10 +107,14 @@ public class TextGlitch : MonoBehaviour
                     originalText,
                     damageLevel);
 
-            isGlitching = true;
+            isGlitching =
+                true;
 
-            glitchDurationTimer = currentDuration;
-            glitchTimer = currentInterval;
+            glitchDurationTimer =
+                currentDuration;
+
+            glitchTimer =
+                currentInterval;
         }
     }
 
@@ -92,19 +122,27 @@ public class TextGlitch : MonoBehaviour
         string text,
         float damageLevel)
     {
-        char[] chars = text.ToCharArray();
+        char[] chars =
+            text.ToCharArray();
 
         float corruptionChance =
-            Mathf.Lerp(0.1f, 0.8f, damageLevel);
+            Mathf.Lerp(
+                0.1f,
+                0.8f,
+                damageLevel);
 
-        for (int i = 0; i < chars.Length; i++)
+        for (int i = 0;
+             i < chars.Length;
+             i++)
         {
             if (chars[i] == ' ')
                 continue;
 
-            if (Random.value < corruptionChance)
+            if (Random.value <
+                corruptionChance)
             {
-                chars[i] = GetRandomGlitchCharacter();
+                chars[i] =
+                    GetRandomGlitchCharacter();
             }
         }
 
@@ -136,13 +174,19 @@ public class TextGlitch : MonoBehaviour
             "OBJECTIVE UNKNOWN"
         };
 
-        if (Random.value < 0.05f)
+        errorTimer -=
+            Time.deltaTime;
+
+        if (errorTimer <= 0f)
         {
             objectiveText.text =
                 errors[
                     Random.Range(
                         0,
                         errors.Length)];
+
+            errorTimer =
+                errorMessageInterval;
         }
     }
 }
