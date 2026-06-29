@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    public GlassCrackController glassCrackController;
+
     public float maxHealth = 100f;
     public float currentHealth;
 
@@ -24,6 +26,11 @@ public class PlayerHealth : MonoBehaviour
     {
         if (isDead)
             return;
+
+        if (glassCrackController != null)
+        {
+            glassCrackController.onTakeDamage(damage);
+        }
 
         currentHealth -= damage;
 
