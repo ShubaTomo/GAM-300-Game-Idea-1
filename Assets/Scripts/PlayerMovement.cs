@@ -45,6 +45,8 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
+    public SoundManager soundManager;
+    public bool isWalking;
 
     public Transform orientation;
     public Transform camHolder;
@@ -79,10 +81,29 @@ public class PlayerMovement : MonoBehaviour
         readyToJump = true;
 
         startYScale = transform.localScale.y;
+
+        soundManager = FindAnyObjectByType<SoundManager>();
     }
 
     private void Update()
     {
+        Debug.Log(rb.linearVelocity.magnitude);
+
+        if (rb.linearVelocity.magnitude > 0)
+        {
+            isWalking = true;
+            PlayWalkingSound();
+        }
+
+        if (isWalking)
+        {
+            if (rb.linearVelocity.magnitude == 0)
+            {
+                isWalking = false;
+                soundManager.StopPlayerSFX();
+            }
+        }
+
         if (GameManagerScript.isDead)
         {
             return;
@@ -104,6 +125,11 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
+    }
+
+    public void PlayWalkingSound()
+    {
+        soundManager.PlayPlayerSFXByIndex(0);
     }
 
     private void MyInput()

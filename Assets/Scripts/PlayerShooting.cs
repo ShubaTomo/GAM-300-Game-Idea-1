@@ -15,6 +15,8 @@ public class PlayerShooting : MonoBehaviour
     public int currentAmmo = 30;
     public int reserveAmmo = 120;
 
+    public SoundManager soundManager;
+
     public float reloadTime = 2f;
 
     private bool isReloading;
@@ -37,6 +39,7 @@ public class PlayerShooting : MonoBehaviour
     {
         currentAmmo = magazineSize;
         UpdateAmmoUI();
+        soundManager = FindAnyObjectByType<SoundManager>();
     }
 
     private void Update()
@@ -62,6 +65,11 @@ public class PlayerShooting : MonoBehaviour
             nextFireTime =
                 Time.time + fireRate;
         }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            soundManager.StopShootingSFX();
+        }
     }
 
     private void Shoot()
@@ -86,6 +94,7 @@ public class PlayerShooting : MonoBehaviour
         currentAmmo--;
 
         UpdateAmmoUI();
+        soundManager.PlayGunSFXByIndex(0);
 
         if (aimDownSight != null)
         {
