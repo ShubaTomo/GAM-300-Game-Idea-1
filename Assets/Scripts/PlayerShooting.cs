@@ -1,48 +1,22 @@
 using UnityEngine;
-using TMPro;
 
 public class PlayerShooting : MonoBehaviour
 {
-    [Header("References")]
     public Camera playerCamera;
+
     public Transform firePoint;
+
     public GameObject bulletPrefab;
+
     public AimDownSight aimDownSight;
 
-    [Header("Ammo")]
-    public int magazineSize = 30;
-    public int currentAmmo = 30;
-    public int reserveAmmo = 120;
-
-    public float reloadTime = 2f;
-
-    private bool isReloading;
-
-    [Header("Shooting")]
     public float bulletSpeed = 80f;
     public float fireRate = 0.15f;
 
     private float nextFireTime;
 
-    [Header("UI")]
-    public TMP_Text ammoText;
-
-    private void Start()
-    {
-        currentAmmo = magazineSize;
-        UpdateAmmoUI();
-    }
-
     private void Update()
     {
-        if (isReloading)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Reload();
-        }
-
         if (Input.GetMouseButton(0) &&
             Time.time >= nextFireTime)
         {
@@ -55,17 +29,7 @@ public class PlayerShooting : MonoBehaviour
 
     private void Shoot()
     {
-        if (currentAmmo <= 0)
-        {
-            Debug.Log("Out of ammo!");
-            Reload();
-            return;
-        }
-
-        currentAmmo--;
-
-        UpdateAmmoUI();
-
+        // Instantly move gun to ADS position
         if (aimDownSight != null)
         {
             aimDownSight.SnapToAim();
@@ -106,59 +70,5 @@ public class PlayerShooting : MonoBehaviour
 
         rb.linearVelocity =
             direction * bulletSpeed;
-    }
-
-    private void Reload()
-    {
-        if (currentAmmo == magazineSize)
-            return;
-
-        if (reserveAmmo <= 0)
-            return;
-
-        StartCoroutine(
-            ReloadCoroutine());
-    }
-
-    private System.Collections.IEnumerator ReloadCoroutine()
-    {
-        isReloading = true;
-
-        if (ammoText != null)
-        {
-            ammoText.text = "RELOADING...";
-        }
-
-        Debug.Log("Reloading...");
-
-        yield return new WaitForSeconds(
-            reloadTime);
-
-        int ammoNeeded =
-            magazineSize - currentAmmo;
-
-        int ammoToLoad =
-            Mathf.Min(
-                ammoNeeded,
-                reserveAmmo);
-
-        currentAmmo += ammoToLoad;
-
-        reserveAmmo -= ammoToLoad;
-
-        UpdateAmmoUI();
-
-        isReloading = false;
-    }
-
-    private void UpdateAmmoUI()
-    {
-        if (ammoText != null)
-        {
-            ammoText.text =
-                currentAmmo +
-                " / " +
-                reserveAmmo;
-        }
     }
 }
