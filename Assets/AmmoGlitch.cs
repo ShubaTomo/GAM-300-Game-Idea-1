@@ -31,19 +31,6 @@ public class AmmoGlitch : MonoBehaviour
             playerShooting == null)
             return;
 
-        // Reloading text
-        if (playerShooting.IsReloading)
-        {
-            int dots =
-                (int)(Time.time * 3f) % 3 + 1;
-
-            ammoText.text =
-                "RELOADING" +
-                new string('.', dots);
-
-            return;
-        }
-
         string normalText =
             playerShooting.currentAmmo +
             " / " +

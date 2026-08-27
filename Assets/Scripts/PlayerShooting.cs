@@ -18,12 +18,6 @@ public class PlayerShooting : MonoBehaviour
 
     private bool isReloading;
 
-    // For AmmoGlitch.cs
-    public bool IsReloading
-    {
-        get { return isReloading; }
-    }
-
     [Header("Shooting")]
     public float bulletSpeed = 80f;
     public float fireRate = 0.15f;
@@ -116,9 +110,6 @@ public class PlayerShooting : MonoBehaviour
 
     private void Reload()
     {
-        if (isReloading)
-            return;
-
         if (currentAmmo == magazineSize)
             return;
 
@@ -155,9 +146,9 @@ public class PlayerShooting : MonoBehaviour
 
         reserveAmmo -= ammoToLoad;
 
-        isReloading = false;
-
         UpdateAmmoUI();
+
+        isReloading = false;
     }
 
     private void UpdateAmmoUI()
