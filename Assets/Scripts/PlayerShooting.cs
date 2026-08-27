@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
 
 public class PlayerShooting : MonoBehaviour
 {
@@ -19,6 +18,7 @@ public class PlayerShooting : MonoBehaviour
 
     private bool isReloading;
 
+    // For AmmoGlitch.cs
     public bool IsReloading
     {
         get { return isReloading; }
@@ -44,9 +44,7 @@ public class PlayerShooting : MonoBehaviour
         if (isReloading)
             return;
 
-        if (Input.GetKeyDown(KeyCode.R) &&
-            currentAmmo < magazineSize &&
-            reserveAmmo > 0)
+        if (Input.GetKeyDown(KeyCode.R))
         {
             Reload();
         }
@@ -65,18 +63,8 @@ public class PlayerShooting : MonoBehaviour
     {
         if (currentAmmo <= 0)
         {
-            if (ammoText != null)
-            {
-                if (reserveAmmo > 0)
-                {
-                    ammoText.text = "EMPTY";
-                }
-                else
-                {
-                    ammoText.text = "NO AMMO";
-                }
-            }
-
+            Debug.Log("Out of ammo!");
+            Reload();
             return;
         }
 
@@ -117,40 +105,13 @@ public class PlayerShooting : MonoBehaviour
             Instantiate(
                 bulletPrefab,
                 firePoint.position,
-                Quaternion.LookRotation(
-                    direction));
-
-        Bullet bulletScript =
-            bullet.GetComponent<Bullet>();
-
-        if (bulletScript != null)
-        {
-            bulletScript.owner =
-                transform.root.gameObject;
-        }
-
-        Collider bulletCollider =
-            bullet.GetComponent<Collider>();
-
-        Collider playerCollider =
-            GetComponentInParent<Collider>();
-
-        if (bulletCollider != null &&
-            playerCollider != null)
-        {
-            Physics.IgnoreCollision(
-                bulletCollider,
-                playerCollider);
-        }
+                Quaternion.LookRotation(direction));
 
         Rigidbody rb =
             bullet.GetComponent<Rigidbody>();
 
-        if (rb != null)
-        {
-            rb.linearVelocity =
-                direction * bulletSpeed;
-        }
+        rb.linearVelocity =
+            direction * bulletSpeed;
     }
 
     private void Reload()
@@ -158,8 +119,7 @@ public class PlayerShooting : MonoBehaviour
         if (isReloading)
             return;
 
-        if (currentAmmo ==
-            magazineSize)
+        if (currentAmmo == magazineSize)
             return;
 
         if (reserveAmmo <= 0)
@@ -169,44 +129,31 @@ public class PlayerShooting : MonoBehaviour
             ReloadCoroutine());
     }
 
-    private IEnumerator ReloadCoroutine()
+    private System.Collections.IEnumerator ReloadCoroutine()
     {
         isReloading = true;
 
-        float timer = 0f;
-
-        while (timer < reloadTime)
+        if (ammoText != null)
         {
-            timer += Time.deltaTime;
-
-            if (ammoText != null)
-            {
-                int dots =
-                    (int)(Time.time * 3f)
-                    % 4;
-
-                ammoText.text =
-                    "RELOAD" +
-                    new string('.', dots);
-            }
-
-            yield return null;
+            ammoText.text = "RELOADING...";
         }
 
+        Debug.Log("Reloading...");
+
+        yield return new WaitForSeconds(
+            reloadTime);
+
         int ammoNeeded =
-            magazineSize -
-            currentAmmo;
+            magazineSize - currentAmmo;
 
         int ammoToLoad =
             Mathf.Min(
                 ammoNeeded,
                 reserveAmmo);
 
-        currentAmmo +=
-            ammoToLoad;
+        currentAmmo += ammoToLoad;
 
-        reserveAmmo -=
-            ammoToLoad;
+        reserveAmmo -= ammoToLoad;
 
         isReloading = false;
 
@@ -215,25 +162,11 @@ public class PlayerShooting : MonoBehaviour
 
     private void UpdateAmmoUI()
     {
-        if (ammoText == null)
-            return;
-
-        if (currentAmmo <= 0 &&
-            reserveAmmo <= 0)
-        {
-            ammoText.text =
-                "NO AMMO";
-        }
-        else if (currentAmmo <= 0)
-        {
-            ammoText.text =
-                "EMPTY";
-        }
-        else
+        if (ammoText != null)
         {
             ammoText.text =
                 currentAmmo +
-                " | " +
+                " / " +
                 reserveAmmo;
         }
     }

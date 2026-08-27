@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -5039133538399269584}
   - component: {fileID: 8891749288344697165}
   m_Layer: 0
-  m_Name: PlayerBullet
+  m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c4830bd1a41c225429ae026572ac5f17, type: 2}
+  - {fileID: 2100000, guid: 7ceeebee7325b744683ebe6ab0bcc0ca, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -151,4 +151,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 10
   lifetime: 6
-  owner: {fileID: 0}

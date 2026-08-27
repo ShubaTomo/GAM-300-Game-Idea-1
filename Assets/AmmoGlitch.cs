@@ -31,43 +31,29 @@ public class AmmoGlitch : MonoBehaviour
             playerShooting == null)
             return;
 
-        //--------------------------------------------------
-        // Figure out what the normal text should be
-        //--------------------------------------------------
-
-        string normalText;
-
+        // Reloading text
         if (playerShooting.IsReloading)
         {
             int dots =
-                (int)(Time.time * 3f) % 4;
+                (int)(Time.time * 3f) % 3 + 1;
 
-            normalText =
-                "RELOAD" +
+            ammoText.text =
+                "RELOADING" +
                 new string('.', dots);
+
+            return;
         }
-        else if (
-            playerShooting.currentAmmo <= 0 &&
-            playerShooting.reserveAmmo <= 0)
-        {
-            normalText = "EMPTY";
-        }
-        else
-        {
-            normalText =
-                playerShooting.currentAmmo +
-                " | " +
-                playerShooting.reserveAmmo;
-        }
+
+        string normalText =
+            playerShooting.currentAmmo +
+            " / " +
+            playerShooting.reserveAmmo;
 
         float hpPercent =
             playerHealth.currentHealth /
             playerHealth.maxHealth;
 
-        //--------------------------------------------------
         // Healthy
-        //--------------------------------------------------
-
         if (hpPercent > 0.5f)
         {
             ammoText.text = normalText;
@@ -75,51 +61,38 @@ public class AmmoGlitch : MonoBehaviour
             return;
         }
 
-        //--------------------------------------------------
-        // Damage amount
-        //--------------------------------------------------
-
         float damageLevel =
             Mathf.InverseLerp(
                 0.5f,
                 0.1f,
                 hpPercent);
 
+        // More damage = faster glitches
         float currentInterval =
             Mathf.Lerp(
                 glitchInterval,
                 0.25f,
                 damageLevel);
 
+        // More damage = longer glitches
         float currentDuration =
             Mathf.Lerp(
                 glitchDuration,
                 1f,
                 damageLevel);
 
-        //--------------------------------------------------
-        // Currently glitching
-        //--------------------------------------------------
-
         if (isGlitching)
         {
-            glitchDurationTimer -=
-                Time.deltaTime;
+            glitchDurationTimer -= Time.deltaTime;
 
             if (glitchDurationTimer <= 0f)
             {
-                ammoText.text =
-                    normalText;
-
+                ammoText.text = normalText;
                 isGlitching = false;
             }
 
             return;
         }
-
-        //--------------------------------------------------
-        // Wait for next glitch
-        //--------------------------------------------------
 
         glitchTimer -= Time.deltaTime;
 
@@ -144,8 +117,7 @@ public class AmmoGlitch : MonoBehaviour
         string text,
         float damageLevel)
     {
-        char[] chars =
-            text.ToCharArray();
+        char[] chars = text.ToCharArray();
 
         float corruptionChance =
             Mathf.Lerp(
@@ -153,9 +125,7 @@ public class AmmoGlitch : MonoBehaviour
                 0.9f,
                 damageLevel);
 
-        for (int i = 0;
-            i < chars.Length;
-            i++)
+        for (int i = 0; i < chars.Length; i++)
         {
             if (chars[i] == ' ')
                 continue;
