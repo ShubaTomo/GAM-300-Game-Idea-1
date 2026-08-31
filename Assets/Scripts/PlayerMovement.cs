@@ -217,7 +217,6 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator SmoothlyLerpMoveSpeed()
     {
-        // Smoothly lerp movement speed to desired value
         float time = 0;
         float difference = Mathf.Abs(desiredMoveSpeed - moveSpeed);
         float startValue = moveSpeed;
@@ -259,7 +258,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void MovePlayer()
     {
-        // Grappling handles its own movement
+        // Grappling controls its own movement
         if (grappling)
             return;
 
@@ -279,10 +278,12 @@ public class PlayerMovement : MonoBehaviour
             );
 
             if (rb.linearVelocity.y > 0)
+            {
                 rb.AddForce(
                     Vector3.down * 80f,
                     ForceMode.Force
                 );
+            }
         }
 
         // On ground
@@ -297,7 +298,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // In air
-        else if (!grounded)
+        else
         {
             rb.AddForce(
                 moveDirection.normalized *
@@ -338,7 +339,6 @@ public class PlayerMovement : MonoBehaviour
                 rb.linearVelocity.z
             );
 
-            // Limit velocity if needed
             if (flatVel.magnitude > moveSpeed)
             {
                 Vector3 limitedVel =
@@ -358,7 +358,6 @@ public class PlayerMovement : MonoBehaviour
     {
         exitingSlope = true;
 
-        // Reset Y velocity
         rb.linearVelocity = new Vector3(
             rb.linearVelocity.x,
             0f,
@@ -404,5 +403,11 @@ public class PlayerMovement : MonoBehaviour
             direction,
             slopeHit.normal
         ).normalized;
+    }
+
+    // Returns the player's actual current velocity.
+    public float GetSpeed()
+    {
+        return rb.linearVelocity.magnitude;
     }
 }
